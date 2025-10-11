@@ -5,8 +5,8 @@ from torch import Tensor
 def t_matrix(
     dim: int,
     target: Tuple[int, int],
-    theta: Tensor,   # теперь принимаем Tensor (для градиентов)
-    phi: Tensor,     # тоже Tensor
+    theta: Tensor,
+    phi: Tensor,
     dtype=torch.complex128,
     device='cpu'
 ) -> Tensor:
@@ -30,10 +30,8 @@ def t_matrix(
     """
     m, n = target
 
-    # Создаём единичную матрицу нужного размера
     T = torch.eye(dim, dtype=dtype, device=device)
 
-    # Вычисляем элементы 2x2 блока с использованием torch (дифференцируемо!)
     cos_t = torch.cos(theta)
     sin_t = torch.sin(theta)
     exp_iphi = torch.exp(1j * phi)
@@ -66,15 +64,14 @@ def reck_decomposition(U: Tensor):
     dtype_real = torch.float64
     dtype_int = torch.int64
 
-    # Инициализация списков (лучше, чем cat в цикле)
     thetas_list = []
     phis_list = []
     targets_list = []
 
     U_work = U.clone()
 
-    for n in range(N - 1, 0, -1):          # столбцы: справа налево
-        for m in range(n - 1, -1, -1):     # строки: снизу вверх в столбце n
+    for n in range(N - 1, 0, -1):          
+        for m in range(n - 1, -1, -1):     
             a = U_work[n, n]
             b = U_work[m, n]
 
@@ -101,7 +98,7 @@ def reck_decomposition(U: Tensor):
     phis = torch.stack(phis_list) if phis_list else torch.empty(0, dtype=dtype_real, device=device)
     targets = torch.stack(targets_list) if targets_list else torch.empty((0, 2), dtype=dtype_int, device=device)
 
-    phases = torch.angle(torch.diag(U_work))  # вещественные фазы
+    phases = torch.angle(torch.diag(U_work)) 
 
     return thetas, phis, targets, phases
 
