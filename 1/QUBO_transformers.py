@@ -68,4 +68,3 @@ def qubo_to_ising(Q: sp.csr_matrix) -> sp.csr_matrix:
     H = ising(J, h, n)
     return H
 
-

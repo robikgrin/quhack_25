@@ -28,7 +28,7 @@ if __name__ == "__main__":
     N = np.random.randint(5, 20)
 
     ### ВЫБИРАЕШЬ ГРАФ ###
-    Qmat = generate_random_regular_graph_qubo(N, N-1)
+    Qmat = generate_random_regular_graph_qubo(N, N-1, vis=True)
     Q = Qmat.toarray()
     ######################
 
