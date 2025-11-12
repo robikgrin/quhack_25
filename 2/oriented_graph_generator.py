@@ -19,7 +19,7 @@ def generate_directed_graph_and_queries(n_vertices, n_edges, n_waves=1, seed=Non
     """
     if seed is not None:
         random.seed(seed)
-    
+
     # Проверки
     if n_vertices < 1:
         raise ValueError("Количество вершин должно быть >= 1")
