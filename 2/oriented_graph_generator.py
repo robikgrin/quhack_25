@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import os
 
-def generate_directed_graph_and_queries_files(n_vertices, n_edges, n_waves=1, seed=None, output_dir="generated_data"):
+def generate_directed_graph_and_queries_files(n_vertices, n_edges, n_reqs = 1, n_waves=1, seed=None, output_dir="generated_data"):
     """
     Генерирует два файла в требуемом формате:
     - graph.txt: Описание графа.
@@ -13,6 +13,7 @@ def generate_directed_graph_and_queries_files(n_vertices, n_edges, n_waves=1, se
         n_vertices (int): Количество вершин (нумерация с 0).
         n_edges (int): Количество рёбер.
         n_waves (int): Количество "волн" (запросов на разных волнах).
+        n_reqs
         seed (int, optional): Сид для воспроизводимости. По умолчанию None.
         output_dir (str): Директория для сохранения файлов.
     """
@@ -44,7 +45,7 @@ def generate_directed_graph_and_queries_files(n_vertices, n_edges, n_waves=1, se
     
     # Генерация запросов (между разными вершинами)
     queries = set()
-    while len(queries) < n_waves:
+    while len(queries) < n_reqs:
         u = random.randint(0, n_vertices - 1)
         v = random.randint(0, n_vertices - 1)
         if u != v:  # Запрещаем запросы типа A->A
@@ -175,24 +176,22 @@ def visualize_directed_graph_with_queries_colored_by_wave(graph_str, queries_str
 # Пример использования
 if __name__ == "__main__":
     # Генерация файлов
-    for i in range(1, 10):
+    for i in range(1, 51):
         generate_directed_graph_and_queries_files(
             n_vertices=10,
-            n_edges=30,
-            n_waves=4,
+            n_edges = 30,
+            n_reqs = 5,
+            n_waves = 2,
             output_dir=f"test_case/{i}/"
         )
-    
-    
-    # Чтение файлов для визуализации
-    with open("test_case/graph.txt", 'r') as f:
-        graph_str = f.read()
-    with open("test_case/queries.txt", 'r') as f:
-        queries_str = f.read()
-    
-    # Визуализация
-    visualize_directed_graph_with_queries_colored_by_wave(
-        graph_str,
-        queries_str,
-        "Граф с запросами между разными вершинами"
-    )
+
+        ### Если хочешь посмотреть на граф ###
+        # path = f'test_case/{i}'
+
+        # with open(f"{path}/graph.txt", 'r') as f:
+        #     graph_str = f.read()
+
+        # with open(f"{path}/queries.txt", 'r') as f:
+        #             queries_str = f.read()
+
+        # visualize_directed_graph_with_queries_colored_by_wave(graph_str, queries_str)

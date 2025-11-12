@@ -5,7 +5,7 @@ import neal
 
 from QUBO_transformers import *
 from graph_generator import *
-from ANALing import *
+from solution_sim import *
 
 def solve_qubo_neal(Q, num_reads=200):
     """Надёжное приближение оптимума через Simulated Annealing."""
@@ -53,12 +53,11 @@ def generate_qubo_batch(batch_size=20, N=10, seed=42):
         size = np.random.randint(N, N*10)
         numbers = np.arange(size%2+1, N//3, 2)
         degree = np.random.choice(numbers, size=1, replace=True)[0]
-        # print(size, degree)
+        print(size, degree)
         Q = generate_random_regular_graph_qubo(size, degree = degree, seed = seed)
 
         Q_list.append(sp.csr_matrix(Q, dtype=float))
         
-
         if N <= 20:
             _, E_opt = solve_qubo_brute_force(Q)
         else:
@@ -66,7 +65,7 @@ def generate_qubo_batch(batch_size=20, N=10, seed=42):
         E_opt_list.append(E_opt)
     return Q_list, E_opt_list
 
-Q_list, E_opt_list = generate_qubo_batch(N = 200, batch_size=50)
+Q_list, E_opt_list = generate_qubo_batch(N = 100, batch_size=1)
 errors = []
 for Q,E_opt in zip(Q_list, E_opt_list):
     x = solve(Q)
