@@ -1,25 +1,24 @@
 import random
 import matplotlib.pyplot as plt
 import networkx as nx
+import os
 
-def generate_directed_graph_and_queries(n_vertices, n_edges, n_waves=1, seed=None):
+def generate_directed_graph_and_queries_files(n_vertices, n_edges, n_waves=1, seed=None, output_dir="generated_data"):
     """
-    Генерирует два отдельных текстовых вывода (str) в требуемом формате.
+    Генерирует два файла в требуемом формате:
+    - graph.txt: Описание графа.
+    - queries.txt: Данные о волнах и запросах.
     
     Аргументы:
         n_vertices (int): Количество вершин (нумерация с 0).
         n_edges (int): Количество рёбер.
         n_waves (int): Количество "волн" (запросов на разных волнах).
         seed (int, optional): Сид для воспроизводимости. По умолчанию None.
-    
-    Возвращает:
-        tuple: (graph_str, queries_str)
-            - graph_str: Описание графа (число вершин, число рёбер, список рёбер).
-            - queries_str: Дополнительные данные (число волн, число запросов, список запросов).
+        output_dir (str): Директория для сохранения файлов.
     """
     if seed is not None:
         random.seed(seed)
-
+    
     # Проверки
     if n_vertices < 1:
         raise ValueError("Количество вершин должно быть >= 1")
@@ -31,6 +30,9 @@ def generate_directed_graph_and_queries(n_vertices, n_edges, n_waves=1, seed=Non
     max_possible_edges = n_vertices * (n_vertices - 1)
     if n_edges > max_possible_edges:
         raise ValueError(f"Максимальное количество рёбер для {n_vertices} вершин: {max_possible_edges}")
+    
+    # Создание директории
+    os.makedirs(output_dir, exist_ok=True)
     
     # Генерация рёбер (без петель)
     edges = set()
@@ -48,20 +50,24 @@ def generate_directed_graph_and_queries(n_vertices, n_edges, n_waves=1, seed=Non
         if u != v:  # Запрещаем запросы типа A->A
             queries.add((u, v))
     
-    # Формирование graph_str
-    graph_lines = [f"{n_vertices} {n_edges}"]
-    for u, v in sorted(edges):
-        graph_lines.append(f"{u} {v}")
-    graph_str = "\n".join(graph_lines)
+    # Запись в файл graph.txt
+    graph_path = os.path.join(output_dir, "graph.txt")
+    with open(graph_path, 'w') as f:
+        f.write(f"{n_vertices} {n_edges}\n")
+        for u, v in sorted(edges):
+            f.write(f"{u} {v}\n")
     
-    # Формирование queries_str
-    queries_lines = [f"{n_waves}"]  # Число волн
-    queries_lines.append(f"{len(queries)}")  # Число запросов (может быть меньше n_waves при коллизиях, но обычно равно)
-    for u, v in sorted(queries):
-        queries_lines.append(f"{u} {v}")
-    queries_str = "\n".join(queries_lines)
+    # Запись в файл queries.txt
+    queries_path = os.path.join(output_dir, "queries.txt")
+    with open(queries_path, 'w') as f:
+        f.write(f"{n_waves}\n")  # Число волн
+        f.write(f"{len(queries)}\n")  # Число запросов
+        for u, v in sorted(queries):
+            f.write(f"{u} {v}\n")
     
-    return graph_str, queries_str
+    print(f"Файлы успешно созданы в '{output_dir}':")
+    print(f"  - graph.txt")
+    print(f"  - queries.txt")
 
 def visualize_directed_graph_with_queries_colored_by_wave(graph_str, queries_str, title="Направленный граф с запросами"):
     """
@@ -168,9 +174,25 @@ def visualize_directed_graph_with_queries_colored_by_wave(graph_str, queries_str
 
 # Пример использования
 if __name__ == "__main__":
-    # Генерация двух строк
-    graph_output, queries_output = generate_directed_graph_and_queries(
-        n_vertices=5,
-        n_edges=8,
-        n_waves=3
+    # Генерация файлов
+    for i in range(1, 10):
+        generate_directed_graph_and_queries_files(
+            n_vertices=10,
+            n_edges=30,
+            n_waves=4,
+            output_dir=f"test_case/{i}/"
+        )
+    
+    
+    # Чтение файлов для визуализации
+    with open("test_case/graph.txt", 'r') as f:
+        graph_str = f.read()
+    with open("test_case/queries.txt", 'r') as f:
+        queries_str = f.read()
+    
+    # Визуализация
+    visualize_directed_graph_with_queries_colored_by_wave(
+        graph_str,
+        queries_str,
+        "Граф с запросами между разными вершинами"
     )

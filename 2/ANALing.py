@@ -8,7 +8,7 @@ def sigmoid_pump(step, max_steps, p_start, p_end, k=6):
     return p_start + (p_end - p_start) / (1 + np.exp(-k * (t - 0.5)))
 
 
-def solve(matrix, sigma=0.001):
+def solve_anal(matrix, sigma=0.001):
     """
     SimCIM (coherent ising machine)
     """
