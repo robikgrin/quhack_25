@@ -144,7 +144,7 @@ def visualize_directed_graph_with_queries_colored_by_wave(graph_str, queries_str
     
     # Рисуем основные элементы графа
     nx.draw_networkx_nodes(G, pos, node_size=700, node_color='lightgray', edgecolors='black', linewidths=2)
-    nx.draw_networkx_edges(G, pos, arrowstyle='->', arrowsize=20, edge_color='darkgray', width=2)
+    nx.draw_networkx_edges(G, pos, arrowstyle='->', arrowsize=40, edge_color='black', width=2)
     nx.draw_networkx_labels(G, pos, font_size=16, font_weight='bold')
     
     # Выделение точек запросов по уникальным парам (одинаковые запросы — один цвет)
@@ -176,22 +176,23 @@ def visualize_directed_graph_with_queries_colored_by_wave(graph_str, queries_str
 # Пример использования
 if __name__ == "__main__":
     # Генерация файлов
-    for i in range(1, 51):
+    for i in range(1, 3):
         generate_directed_graph_and_queries_files(
             n_vertices=10,
-            n_edges = 30,
+            n_edges = 20,
             n_reqs = 5,
             n_waves = 2,
             output_dir=f"test_case/{i}/"
         )
 
-        ### Если хочешь посмотреть на граф ###
-        # path = f'test_case/{i}'
+        ## Если хочешь посмотреть на граф ###
+        path = f'test_case/{i}'
 
-        # with open(f"{path}/graph.txt", 'r') as f:
-        #     graph_str = f.read()
+        with open(f"{path}/graph.txt", 'r') as f:
+            graph_str = f.read()
 
-        # with open(f"{path}/queries.txt", 'r') as f:
-        #             queries_str = f.read()
+        with open(f"{path}/queries.txt", 'r') as f:
+                    queries_str = f.read()
 
-        # visualize_directed_graph_with_queries_colored_by_wave(graph_str, queries_str)
+        visualize_directed_graph_with_queries_colored_by_wave(graph_str, queries_str)
+        ######################################

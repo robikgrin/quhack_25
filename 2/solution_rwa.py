@@ -124,7 +124,6 @@ def create_graph(n_vertices, edges):
     graph = sp.csr_matrix((data, (row, col)), shape=(n_vertices, n_vertices), dtype=int)
     return graph
 
-
 def solve(graph_file: str, requests_file: str):
     n_vertices, edges = read_graph_from_file(graph_file)
     G = create_graph(n_vertices, edges)  

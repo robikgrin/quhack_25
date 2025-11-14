@@ -9,7 +9,6 @@ def sigmaz_k(k: int, n: int) -> sp.csr_matrix:
     Z = sp.csr_matrix([[1, 0], [0, -1]], dtype=np.complex64)
     return sp.kron(sp.kron(left_part, Z, format='csr'), right_part, format='csr')
 
-
 def ising_coefs(Q: sp.csr_matrix):
     """Compute Ising coefficients J (pairwise) and h (local fields) from QUBO matrix Q.
 
@@ -32,7 +31,6 @@ def ising_coefs(Q: sp.csr_matrix):
     h = 1/2 * L.toarray().sum(axis=1).flatten() + 1/2 * diag
     return J, h
 
-
 def ising(J: sp.csr_matrix, h: np.array, n: int) -> sp.csr_matrix:
     """Build full Ising Hamiltonian as sparse matrix of size 2^n x 2^n.
 
@@ -54,7 +52,6 @@ def ising(J: sp.csr_matrix, h: np.array, n: int) -> sp.csr_matrix:
 
     return res
 
-
 def qubo_to_ising(Q: sp.csr_matrix) -> sp.csr_matrix:
     """Convert QUBO matrix Q into Ising Hamiltonian sparse matrix.
 
@@ -67,4 +64,3 @@ def qubo_to_ising(Q: sp.csr_matrix) -> sp.csr_matrix:
     J, h = ising_coefs(Q)
     H = ising(J, h, n)
     return H
-

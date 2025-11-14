@@ -3,36 +3,37 @@ import scipy.sparse as sp
 import matplotlib.pyplot as plt
 import networkx as nx
 
-
-def generate_maxcut_qubo_from_graph(G, vis = False):
+def generate_maxcut_qubo_from_graph(G, position = None, vis = False):
     """
     Преобразует граф G в QUBO-матрицу для задачи MaxCut.
     
-    В MaxCut вершины разбиваются на два множества, и целевая функция —
-    максимизация веса рёбер между этими множествами.
-    
-    Формула:
-    E(x) = sum_{(i,j) in E} w_{ij} * x_i * (1 - x_j) + x_j * (1 - x_i)
-         = sum_{(i,j) in E} w_{ij} * (x_i + x_j - 2*x_i*x_j)
-    где x_i ∈ {0, 1} — принадлежность вершины i одному из множеств.
+    Формула для функции оценки
+
+        E(x) = sum_{(i,j) in E} w_{ij} * x_i * (1 - x_j) + x_j * (1 - x_i)
+            = sum_{(i,j) in E} w_{ij} * (x_i + x_j - 2*x_i*x_j)
+        где x_i ∈ {0, 1} — принадлежность вершины i одному из множеств.
 
     В QUBO-форме:
-    E(x) = x^T * Q * x
+
+        E(x) = x^T * Q * x
     """
     n = G.number_of_nodes()
     Q = np.zeros((n, n))
 
     if vis:
-        pos = nx.spring_layout(G, seed=42)
+        if position:
+            pos = position
+        else:
+            pos = nx.spring_layout(G, seed=42)  
 
-        # Рисуем узлы (размер зависит от линейного веса)
-        nx.draw_networkx_nodes(G, pos, node_color='lightblue')
+        plt.figure(figsize=(8,6), dpi = 400)
 
-        # Рисуем рёбра (толщина зависит от |взаимодействия|)
+        nx.draw_networkx_nodes(G, pos, node_color='lightgreen')
+
         nx.draw_networkx_edges(G, pos, edge_color='gray')
         nx.draw_networkx_labels(G, pos)
 
-        plt.title("QUBO Network Visualization")
+        plt.title("QUBO Network Visualization", fontsize = 18)
         plt.axis('off')
         plt.tight_layout()
         plt.show()
@@ -47,46 +48,45 @@ def generate_maxcut_qubo_from_graph(G, vis = False):
 def generate_random_regular_graph_qubo(n_nodes, degree, seed=None, vis=False):
     """
     Генерирует QUBO для MaxCut на случайном регулярном графе.
-    Все рёбра имеют вес 1.
     """
     G = nx.random_regular_graph(d=degree, n=n_nodes, seed=seed)
     Q = generate_maxcut_qubo_from_graph(G, vis)
-    return sp.csr_matrix(Q)
+    return sp.csr_matrix(Q), G
 
 def generate_erdos_renyi_qubo(n_nodes, edge_prob, seed=None, vis=False):
     """
     Генерирует QUBO для MaxCut на случайном графе Эрдёша–Реньи G(n, p).
-    Все рёбра имеют вес 1.
     """
     G = nx.erdos_renyi_graph(n=n_nodes, p=edge_prob, seed=seed)
     Q = generate_maxcut_qubo_from_graph(G, vis)
-    return sp.csr_matrix(Q)
+    return sp.csr_matrix(Q), G
 
 def generate_grid_qubo(rows, cols, seed=None, vis = False):
     """
     Генерирует QUBO для MaxCut на двумерной решётке (grid graph).
-    Все рёбра имеют вес 1.
     """
     G = nx.grid_2d_graph(rows, cols)
-    # Переименовать узлы в числовые индексы
     G = nx.convert_node_labels_to_integers(G)
-    Q = generate_maxcut_qubo_from_graph(G, vis)
-    return sp.csr_matrix(Q)
+    pos = {}
+    temp = 0
+    for row in range(rows):
+        for col in range(cols):
+            pos[temp] = (col, -row)
+            temp += 1
+    Q = generate_maxcut_qubo_from_graph(G, pos, vis)
+    return sp.csr_matrix(Q), G
 
 def generate_complete_graph_qubo(n_nodes, seed=None, vis = False):
     """
     Генерирует QUBO для MaxCut на полном графе (K_n).
-    Все рёбра имеют вес 1.
     """
     G = nx.complete_graph(n=n_nodes)
     Q = generate_maxcut_qubo_from_graph(G, vis)
-    return sp.csr_matrix(Q)
+    return sp.csr_matrix(Q), G
 
-def generate_barabasi_albert_qubo(n_nodes, m_attach, seed=None, vis = False):
-    """
-    Генерирует QUBO для MaxCut на графе по модели Барабаши–Альберта.
-    Все рёбра имеют вес 1.
-    """
-    G = nx.barabasi_albert_graph(n=n_nodes, m=m_attach, seed=seed)
-    Q = generate_maxcut_qubo_from_graph(G, vis)
-    return sp.csr_matrix(Q)
+def complete_bipartite_graph_k_nn(n, seed = None, vis = False):
+    G = nx.complete_bipartite_graph(n, n)
+    pos = nx.bipartite_layout(G, nodes=range(n))
+
+    Q = generate_maxcut_qubo_from_graph(G, pos, vis)
+    return sp.csr_matrix(Q), G

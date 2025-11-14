@@ -1,10 +1,10 @@
-from graph_generator import *
-from QUBO_transformers import *
-
+import numpy as np
 from scipy.sparse.linalg import eigsh
 
-from dimod import BinaryQuadraticModel
-import neal
+from graph_generator import generate_erdos_renyi_qubo
+from QUBO_transformers import qubo_to_ising
+
+from solvers import solve_qubo_neal
 
 def probs2bit_str(probs: np.array) -> str:
     size = int(np.log2(probs.shape[0]))
@@ -28,38 +28,12 @@ if __name__ == "__main__":
     N = np.random.randint(5, 20)
 
     ### ВЫБИРАЕШЬ ГРАФ ###
-    Qmat = generate_random_regular_graph_qubo(N, N-1, vis=True)
-    Q = Qmat.toarray()
+    edge_prob = np.random.rand()
+    Q, _ = generate_erdos_renyi_qubo(N, edge_prob=edge_prob, vis=True)
     ######################
 
-    Q_dict = {}
-    for i in range(N):
-        start = Qmat.indptr[i]
-        end = Qmat.indptr[i + 1]
-        for idx in range(start, end):
-            j = Qmat.indices[idx]
-            val = Qmat.data[idx]
-            if val != 0:
-                Q_dict[(i, j)] =-val
-
-    bqm = BinaryQuadraticModel.from_qubo(Q_dict)
-    sampler = neal.SimulatedAnnealingSampler()
-
-    energies = []
-    solutions = []
-
-    for i in range(10):
-        sampleset = sampler.sample(bqm, num_reads=100)
-        best = next(sampleset.data(['sample', 'energy']))
-        solutions.append(best.sample)
-        energies.append(best.energy)
-
-    min_idx = energies.index(min(energies))
-    best_solution = solutions[min_idx]
-
     ### РЕШЕНИЕ ОТЖИГОМ ###
-    solution_x = np.array([best.sample[i] for i in range(N)], dtype=int)
-    cut_value = float(solution_x @ Qmat @ solution_x)
+    solution_x, cut_value = solve_qubo_neal(Q)
     print("Classical cut value for solution:", cut_value)  # -> 5.0
     ######################
 
@@ -88,7 +62,7 @@ if __name__ == "__main__":
         print("WARNING: ground energy > classical solution energy -- check transformation.")
 
     found_x = np.array([int(c) for c in bitstr], dtype=int)
-    found_cut = float(found_x @ Qmat @ found_x)
+    found_cut = float(found_x @ Q @ found_x)
     print("Cut value for found bitstring:", found_cut)
 
 

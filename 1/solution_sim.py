@@ -27,7 +27,7 @@ def ising_coefs(Q: sp.csr_matrix):
 def sigmoid_pump(step, max_steps, p_start, p_end, k):
   t = step / max_steps
   return p_start + (p_end - p_start) / (1 + np.exp(-k * (t - 0.5)))
-  
+
 def solve(matrix):
     """
     SimCIM (coherent ising machine)
@@ -37,13 +37,13 @@ def solve(matrix):
     J, h = ising_coefs(Q_sym)
     T = 30
     dt = 0.001
-    
+
     max_steps = int(T//dt)
-                 
+                  
     p_start = 0.2
     p_end = 1.9    
     k =  6.002499433118096
-    
+
     a = 1e-4 * np.random.randn(n).astype(np.float64)
 
     for step in range(max_steps):

@@ -65,7 +65,7 @@ def generate_qubo_batch(batch_size=20, N=10, seed=42):
         E_opt_list.append(E_opt)
     return Q_list, E_opt_list
 
-Q_list, E_opt_list = generate_qubo_batch(N = 100, batch_size=1)
+Q_list, E_opt_list = generate_qubo_batch(N = 180, batch_size=1)
 errors = []
 for Q,E_opt in zip(Q_list, E_opt_list):
     x = solve(Q)
