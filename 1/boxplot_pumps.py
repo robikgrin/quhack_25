@@ -53,9 +53,8 @@ def evaluate_solver_on_batch(Q_list, E_opt_list, solve_func, solver_name=""):
 
 if __name__ == "__main__":
     print("Генерация батча QUBO...")
-    Q_list, E_opt_list = generate_qubo_batch(batch_size=10, N=10, seed=42)
+    Q_list, E_opt_list = generate_qubo_batch(N=21, batch_size=10, seed=42)
 
-    # Определяем все pump-функции
     pump_configs = [
         ("linear", linear_pump, {}),
         ("exponential", exponential_pump, {"alpha": 2.0}),
@@ -66,7 +65,6 @@ if __name__ == "__main__":
     all_errors = {}
     labels = []
 
-    # Оцениваем каждый планировщик
     for name, pump_func, params in pump_configs:
         def solver(Q, pf=pump_func, pp=params):
             return solve_pump_tuning(Q, pf, pp)
@@ -81,9 +79,9 @@ if __name__ == "__main__":
         data,
         tick_labels=labels,
         patch_artist=True,
-        medianprops=dict(color='black', linewidth=1.5)  # ← жирная чёрная медиана
+        medianprops=dict(color='black', linewidth=1.5)
     )
-    colors = ['#4C72B0', '#55A868', '#C44E52', '#8172B3', '#D6843D']  # синий, зелёный, красный, фиолетовый, охра
+    colors = ['#4C72B0', '#55A868', '#C44E52', '#8172B3', '#D6843D']
 
     for patch, color in zip(bp['boxes'], colors):
         patch.set_facecolor(color)

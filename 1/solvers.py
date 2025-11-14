@@ -22,20 +22,15 @@ def solve_qubo_neal(Q, num_reads=200):
     """Надёжное приближение оптимума через Simulated Annealing."""
     n = Q.shape[0]
     Q_dict = {}
-    for i in range(n):
-        start = Q.indptr[i]
-        end = Q.indptr[i + 1]
-        for idx in range(start, end):
-            j = Q.indices[idx]
-            val = Q.data[idx]
-            if val != 0:
-                Q_dict[(i, j)] = -val
-
+    rows, cols = Q.nonzero()
+    for i,j in zip(rows, cols):
+        Q_dict[(i, j)] = -Q[i,j]
+    
     bqm = BinaryQuadraticModel.from_qubo(Q_dict)
     sampler = neal.SimulatedAnnealingSampler()
     sampleset = sampler.sample(bqm, num_reads=num_reads)
     best = sampleset.first
-    x_opt = np.array([best.sample[i] for i in range(n)], dtype=int)
+    x_opt = np.array([best.sample.get(i, 0) for i in range(n)], dtype=int)
     energy = x_opt.T @ Q @ x_opt
     return x_opt, energy
 
@@ -112,7 +107,7 @@ def solve_qubo_with_history(Q_csr, pump_func, record_every=10, pump_params=None)
     T = 30.0
     dt = 0.001
     max_steps = int(T / dt)
-    p_start, p_end, k = 0.2, 1.9, 6.0
+    p_start, p_end = 0.2, 1.9
     a = 1e-4 * np.random.randn(n).astype(np.float64)
     history = []
     times = []
